@@ -1,3 +1,7 @@
+import {
+  TOOLTIP_MARGIN,
+  TOOLTIP_OFFSET,
+} from "../constants/tooltip";
 import type { TooltipState } from "../types/tooltip";
 
 export class TooltipRenderer {
@@ -6,24 +10,7 @@ export class TooltipRenderer {
   public constructor() {
     this.element = document.createElement("div");
 
-    this.element.style.position = "absolute";
-    this.element.style.display = "none";
-
-    this.element.style.background = "#ffffff";
-    this.element.style.color = "#000000";
-
-    this.element.style.border = "1px solid #d0d0d0";
-    this.element.style.borderRadius = "8px";
-
-    this.element.style.padding = "10px 14px";
-
-    this.element.style.boxShadow =
-      "0 6px 20px rgba(0,0,0,0.15)";
-
-    this.element.style.fontFamily = "sans-serif";
-    this.element.style.fontSize = "14px";
-
-    this.element.style.zIndex = "2147483647";
+    this.element.className = "lorelens-tooltip";
 
     document.body.appendChild(this.element);
   }
@@ -31,10 +18,31 @@ export class TooltipRenderer {
   public show(state: TooltipState): void {
     this.element.textContent = `Loading "${state.text}"...`;
 
-    this.element.style.left = `${state.x}px`;
-    this.element.style.top = `${state.y + 8}px`;
-
+    // Сначала показываем элемент, чтобы узнать его реальные размеры
     this.element.style.display = "block";
+
+    const tooltipWidth = this.element.offsetWidth;
+    const tooltipHeight = this.element.offsetHeight;
+
+    let left = state.rect.left + window.scrollX;
+    let top = state.rect.bottom + window.scrollY + TOOLTIP_OFFSET;
+
+    // Не выходим за правый край окна
+    if (left + tooltipWidth > window.innerWidth - TOOLTIP_MARGIN) {
+      left = window.innerWidth - tooltipWidth - TOOLTIP_MARGIN;
+    }
+
+    // Если снизу нет места — показываем сверху
+    if (top + tooltipHeight > window.innerHeight + window.scrollY) {
+      top = 
+        state.rect.top +
+        window.scrollY -
+        tooltipHeight -
+        TOOLTIP_OFFSET;
+    }
+
+    this.element.style.left = `${left}px`;
+    this.element.style.top = `${top}px`;
   }
 
   public hide(): void {

@@ -17,8 +17,7 @@ export class TooltipController {
     this.renderer.show({
       visible: true,
       text: selection.text,
-      x: selection.pageX,
-      y: selection.pageY,
+      rect: selection.rect,
     });
   }
 

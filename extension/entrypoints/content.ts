@@ -1,5 +1,7 @@
 import { defineContentScript } from "#imports";
 
+import "../assets/tooltip.css";
+
 import { TooltipController } from "../lib/controllers/TooltipController";
 import { SelectionObserver } from "../lib/observers/SelectionObserver";
 
