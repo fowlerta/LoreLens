@@ -3,8 +3,10 @@ export interface SelectionData {
   selection: Selection;
   range: Range;
   rect: DOMRect;
+
+  pageX: number;
+  pageY: number;
+
   isCollapsed: boolean;
   timestamp: number;
 }
-
-export type SelectionListener = (data: SelectionData) => void;
