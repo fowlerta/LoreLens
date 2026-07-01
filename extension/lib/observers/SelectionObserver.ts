@@ -52,12 +52,15 @@ export class SelectionObserver {
     }
 
     const range = selection.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
 
     const data: SelectionData = {
       text,
       selection,
       range,
       rect: range.getBoundingClientRect(),
+      pageX: rect.left + window.scrollX,
+      pageY: rect.bottom + window.scrollY,
       isCollapsed: selection.isCollapsed,
       timestamp: Date.now(),
     };
