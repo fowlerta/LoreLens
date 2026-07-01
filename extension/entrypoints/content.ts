@@ -1,5 +1,8 @@
 import { defineContentScript } from "#imports";
 
+import "../assets/tooltip.css";
+
+import { TooltipController } from "../lib/controllers/TooltipController";
 import { SelectionObserver } from "../lib/observers/SelectionObserver";
 
 export default defineContentScript({
@@ -7,9 +10,12 @@ export default defineContentScript({
 
   main() {
     const observer = new SelectionObserver();
+    const tooltip = new TooltipController();
 
-    observer.subscribe((data) => {
-      console.log("[LoreLens]", data);
+    observer.subscribe((selection) => {
+      console.log("[LoreLens]", selection);
+
+      tooltip.handle(selection);
     });
 
     observer.start();

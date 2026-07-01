@@ -41,24 +41,24 @@ export class SelectionObserver {
   private handleSelection = (): void => {
     const selection = window.getSelection();
 
-    if (!selection || selection.rangeCount === 0) {
+    if (!selection) {
       return;
     }
 
     const text = selection.toString().trim();
 
-    if (!text) {
-      return;
-    }
+    const range =
+      selection.rangeCount > 0
+        ? selection.getRangeAt(0)
+        : document.createRange();
 
-    const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
 
     const data: SelectionData = {
       text,
       selection,
       range,
-      rect: range.getBoundingClientRect(),
+      rect,
       pageX: rect.left + window.scrollX,
       pageY: rect.bottom + window.scrollY,
       isCollapsed: selection.isCollapsed,
