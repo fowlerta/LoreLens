@@ -19,3 +19,12 @@
 
   pointer-events: none;
 }
+.lorelens-tooltip-word {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.lorelens-tooltip-definition {
+  opacity: 0.9;
+  line-height: 1.4;
+}

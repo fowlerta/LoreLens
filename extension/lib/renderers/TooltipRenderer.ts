@@ -16,7 +16,16 @@ export class TooltipRenderer {
   }
 
   public show(state: TooltipState): void {
-    this.element.textContent = `Loading "${state.text}"...`;
+    const word = document.createElement("div");
+    word.className = "lorelens-tooltip-word";
+    word.textContent = state.word;
+
+    const definition = document.createElement("div");
+    definition.className = "lorelens-tooltip-definition";
+    definition.textContent =
+      state.definition ?? "No definition found.";
+
+    this.element.replaceChildren(word, definition);
 
     // Сначала показываем элемент, чтобы узнать его реальные размеры
     this.element.style.display = "block";
@@ -34,7 +43,7 @@ export class TooltipRenderer {
 
     // Если снизу нет места — показываем сверху
     if (top + tooltipHeight > window.innerHeight + window.scrollY) {
-      top = 
+      top =
         state.rect.top +
         window.scrollY -
         tooltipHeight -

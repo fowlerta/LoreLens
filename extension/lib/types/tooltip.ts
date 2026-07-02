@@ -1,4 +1,5 @@
 export interface TooltipState {
-  text: string;
+  word: string;
+  definition?: string;
   rect: DOMRect;
 }
