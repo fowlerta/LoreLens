@@ -25,7 +25,7 @@ export default defineContentScript({
 
       console.log("[LoreLens]", normalized, entry);
 
-      controller.handle(data);
+      controller.handle(data, entry);
     });
 
     observer.start();
