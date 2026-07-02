@@ -2,20 +2,24 @@ import { writeFile } from "node:fs/promises";
 
 import { DictParser } from "./parsers/DictParser";
 import { IdxParser } from "./parsers/IdxParser";
+import { HtmlCleaner } from "./cleaners/HtmlCleaner";
 
 async function main() {
   const idxParser = new IdxParser();
   const dictParser = new DictParser();
+  const cleaner = new HtmlCleaner();
 
   const index = await idxParser.parse("./tools/data/tolkien.idx");
   const dict = await dictParser.load("./tools/data/tolkien.dict");
 
   const records = index.map((entry) => ({
     word: entry.word,
-    definition: dictParser.read(
-      dict,
-      entry.offset,
-      entry.size,
+    definition: cleaner.clean(
+        dictParser.read(
+            dict,
+            entry.offset,
+            entry.size
+        )
     ),
   }));
 
