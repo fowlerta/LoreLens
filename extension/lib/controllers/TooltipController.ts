@@ -6,6 +6,48 @@ import { TooltipRenderer } from "../renderers/TooltipRenderer";
 export class TooltipController {
   private readonly renderer = new TooltipRenderer();
 
+  private readonly handleScroll = (): void => {
+    this.hide();
+  };
+
+  private readonly handleKeyDown = (event: KeyboardEvent): void => {
+    if (event.key !== "Escape") {
+      return;
+    }
+
+    window.getSelection()?.removeAllRanges();
+
+    this.hide();
+  };
+
+  private readonly handlePointerDown = (): void => {
+    this.hide();
+  };
+
+  public constructor() {
+    window.addEventListener("scroll", this.handleScroll, {
+      passive: true,
+    });
+
+    document.addEventListener("keydown", this.handleKeyDown);
+    
+    document.addEventListener(
+      "pointerdown",
+      this.handlePointerDown,
+    );
+  }
+
+  public destroy(): void {
+    window.removeEventListener("scroll", this.handleScroll);
+    document.removeEventListener("keydown", this.handleKeyDown);
+    document.removeEventListener(
+      "pointerdown",
+      this.handlePointerDown,
+    );
+
+    this.renderer.destroy();
+  }
+
   public handle(
     selection: SelectionData,
     entry?: DictionaryEntry,

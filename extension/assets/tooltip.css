@@ -2,6 +2,7 @@
   position: absolute;
   display: none;
 
+  max-width: 320px;
   padding: 10px 14px;
 
   background: #ffffff;
@@ -12,19 +13,25 @@
 
   font-size: 14px;
   font-family: system-ui, sans-serif;
+  line-height: 1.5;
 
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 
   z-index: 2147483647;
 
   pointer-events: none;
+
+  box-sizing: border-box;
 }
 .lorelens-tooltip-word {
-  font-weight: 600;
   margin-bottom: 4px;
+
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .lorelens-tooltip-definition {
-  opacity: 0.9;
-  line-height: 1.4;
+  color: #374151;
+
+  overflow-wrap: anywhere;
 }
