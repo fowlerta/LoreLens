@@ -5,14 +5,22 @@ import type { DictionaryEntry } from "../types/dictionary";
 export class DictionaryService {
   private readonly entries = new Map<string, DictionaryEntry>();
 
+  private readonly normalizedEntries = new Map<
+    string,
+    DictionaryEntry
+  >();
+
   public async load(): Promise<void> {
     const records = dictionary as DictionaryEntry[];
 
     this.entries.clear();
+    this.normalizedEntries.clear();
 
     for (const entry of records) {
-      this.entries.set(
-        entry.word.toLowerCase(),
+      this.entries.set(entry.word, entry);
+
+      this.normalizedEntries.set(
+        this.normalize(entry.word),
         entry,
       );
     }
@@ -23,6 +31,21 @@ export class DictionaryService {
   }
 
   public lookup(word: string): DictionaryEntry | undefined {
-    return this.entries.get(word.toLowerCase());
+    const exact = this.entries.get(word);
+
+    if (exact) {
+      return exact;
+    }
+
+    return this.normalizedEntries.get(
+      this.normalize(word),
+    );
+  }
+
+  private normalize(word: string): string {
+    return word
+      .toLowerCase()
+      .replace(/^\(\s*[a-z]\s*\)\s*/i, "")
+      .trim();
   }
 }
