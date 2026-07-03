@@ -48,6 +48,7 @@ export class DictionaryService {
       .replace(/^\(\s*[a-z]\s*\)\s*/i, "")
       .replace(/^[^\p{L}\p{N}]+/gu, "")
       .replace(/[^\p{L}\p{N}]+$/gu, "")
+      .replace(/['’]s$/u, "")
       .trim();
   }
 }
