@@ -44,6 +44,12 @@ export class DictionaryService {
     return this.cleanDefinition(entry);
   }
 
+  public getEntries(): DictionaryEntry[] {
+    return [...this.entries.values()].sort(
+      (a, b) => a.word.localeCompare(b.word),
+    );
+  }
+
   private cleanDefinition(
     entry: DictionaryEntry,
   ): DictionaryEntry {
