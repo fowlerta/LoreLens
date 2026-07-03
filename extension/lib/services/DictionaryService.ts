@@ -3,7 +3,7 @@ import dictionary from "../../assets/dictionaries/tolkien.json";
 import type { DictionaryEntry } from "../types/dictionary";
 
 export class DictionaryService {
-  private entries = new Map<string, DictionaryEntry>();
+  private readonly entries = new Map<string, DictionaryEntry>();
 
   public async load(): Promise<void> {
     const records = dictionary as DictionaryEntry[];
@@ -11,7 +11,10 @@ export class DictionaryService {
     this.entries.clear();
 
     for (const entry of records) {
-      this.entries.set(entry.word, entry);
+      this.entries.set(
+        entry.word.toLowerCase(),
+        entry,
+      );
     }
 
     console.log(
@@ -20,6 +23,6 @@ export class DictionaryService {
   }
 
   public lookup(word: string): DictionaryEntry | undefined {
-    return this.entries.get(word);
+    return this.entries.get(word.toLowerCase());
   }
 }
