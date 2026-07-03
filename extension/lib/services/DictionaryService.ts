@@ -31,15 +31,29 @@ export class DictionaryService {
   }
 
   public lookup(word: string): DictionaryEntry | undefined {
-    const exact = this.entries.get(word);
+    const entry =
+      this.entries.get(word) ??
+      this.normalizedEntries.get(
+        this.normalize(word),
+      );
 
-    if (exact) {
-      return exact;
+    if (!entry) {
+      return undefined;
     }
 
-    return this.normalizedEntries.get(
-      this.normalize(word),
-    );
+    return this.cleanDefinition(entry);
+  }
+
+  private cleanDefinition(
+    entry: DictionaryEntry,
+  ): DictionaryEntry {
+    return {
+      ...entry,
+      definition: entry.definition.replace(
+        /^Redirected to entry:\s*.+\n+/m,
+        "",
+      ),
+    };
   }
 
   private normalize(word: string): string {
