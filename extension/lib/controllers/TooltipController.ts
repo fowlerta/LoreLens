@@ -6,7 +6,13 @@ import { TooltipRenderer } from "../renderers/TooltipRenderer";
 export class TooltipController {
   private readonly renderer = new TooltipRenderer();
 
+  private pinned = false;
+
   private readonly handleScroll = (): void => {
+    if (this.pinned) {
+      return;
+    }
+
     this.hide();
   };
 
@@ -34,10 +40,32 @@ export class TooltipController {
       return;
     }
 
+    if (this.pinned) {
+      return;
+    }
+
     this.hide();
   };
 
   public constructor() {
+    this.renderer.subscribePin(() => {
+      this.pinned = !this.pinned;
+
+      this.renderer.setPinned(
+        this.pinned,
+      );
+
+      console.log(
+        `[LoreLens] Tooltip ${
+          this.pinned ? "pinned" : "unpinned"
+        }.`,
+      );
+    });
+
+    this.renderer.subscribeClose(() => {
+      this.hide();
+    });
+
     window.addEventListener("scroll", this.handleScroll, {
       passive: true,
     });
@@ -76,8 +104,15 @@ export class TooltipController {
     selection: SelectionData,
     entry?: DictionaryEntry,
   ): void {
+    if (this.pinned) {
+      return;
+    }
+
     if (selection.isCollapsed || !selection.text) {
-      this.hide();
+      if (!this.pinned) {
+        this.hide();
+      }
+
       return;
     }
 
@@ -96,6 +131,8 @@ export class TooltipController {
   }
 
   private hide(): void {
+    this.pinned = false;
+    this.renderer.setPinned(false);
     this.renderer.hide();
   }
 }
