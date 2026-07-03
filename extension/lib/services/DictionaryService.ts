@@ -46,6 +46,8 @@ export class DictionaryService {
     return word
       .toLowerCase()
       .replace(/^\(\s*[a-z]\s*\)\s*/i, "")
+      .replace(/^[^\p{L}\p{N}]+/gu, "")
+      .replace(/[^\p{L}\p{N}]+$/gu, "")
       .trim();
   }
 }
