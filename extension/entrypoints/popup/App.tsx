@@ -1,12 +1,17 @@
+import { useState } from "react";
+
+import { SearchBox } from "./components/SearchBox";
+import { WordList } from "./components/WordList";
+import { DefinitionView } from "./components/DefinitionView";
+
 const APP_INFO = {
   name: "LoreLens",
   tagline: "Offline Reading Companion",
-  dictionary: "Tolkien Fictionary",
-  entries: 7102,
-  version: "0.1.0",
 };
 
 export default function App(): React.JSX.Element {
+  const [query, setQuery] = useState("");
+
   return (
     <main className="popup">
       <header className="popup-header">
@@ -14,22 +19,16 @@ export default function App(): React.JSX.Element {
         <p>{APP_INFO.tagline}</p>
       </header>
 
-      <section className="popup-card">
-        <div className="popup-label">📚 Dictionary</div>
-        <div className="popup-value">{APP_INFO.dictionary}</div>
-      </section>
+      <SearchBox
+        value={query}
+        onChange={setQuery}
+      />
 
-      <section className="popup-card">
-        <div className="popup-label">📖 Entries</div>
-        <div className="popup-value">
-          {APP_INFO.entries.toLocaleString()}
-        </div>
-      </section>
+      <div className="popup-content">
+        <WordList />
 
-      <section className="popup-card">
-        <div className="popup-label">⚙ Version</div>
-        <div className="popup-value">{APP_INFO.version}</div>
-      </section>
+        <DefinitionView />
+      </div>
     </main>
   );
 }
