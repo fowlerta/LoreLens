@@ -25,7 +25,8 @@
 
   z-index: 2147483647;
 
-  pointer-events: none;
+  pointer-events: auto;
+  overflow-y: auto;
 }
 
 .lorelens-tooltip-word {

@@ -10,7 +10,9 @@ export class TooltipController {
     this.hide();
   };
 
-  private readonly handleKeyDown = (event: KeyboardEvent): void => {
+  private readonly handleKeyDown = (
+    event: KeyboardEvent,
+  ): void => {
     if (event.key !== "Escape") {
       return;
     }
@@ -20,7 +22,18 @@ export class TooltipController {
     this.hide();
   };
 
-  private readonly handlePointerDown = (): void => {
+  private readonly handlePointerDown = (
+    event: PointerEvent,
+  ): void => {
+    const target = event.target;
+
+    if (
+      target instanceof Element &&
+      this.renderer.contains(target)
+    ) {
+      return;
+    }
+
     this.hide();
   };
 
@@ -29,8 +42,11 @@ export class TooltipController {
       passive: true,
     });
 
-    document.addEventListener("keydown", this.handleKeyDown);
-    
+    document.addEventListener(
+      "keydown",
+      this.handleKeyDown,
+    );
+
     document.addEventListener(
       "pointerdown",
       this.handlePointerDown,
@@ -38,8 +54,16 @@ export class TooltipController {
   }
 
   public destroy(): void {
-    window.removeEventListener("scroll", this.handleScroll);
-    document.removeEventListener("keydown", this.handleKeyDown);
+    window.removeEventListener(
+      "scroll",
+      this.handleScroll,
+    );
+
+    document.removeEventListener(
+      "keydown",
+      this.handleKeyDown,
+    );
+
     document.removeEventListener(
       "pointerdown",
       this.handlePointerDown,
