@@ -65,7 +65,7 @@ export class TooltipController {
     entry?: DictionaryEntry,
   ): void {
     this.renderer.show({
-      word: selection.text,
+      word: entry?.word ?? selection.text,
       definition: entry?.definition,
       rect: selection.rect,
     });
