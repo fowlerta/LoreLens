@@ -1,20 +1,71 @@
-html,
-body,
-#root {
-  margin: 0;
-  padding: 0;
+:root {
+  color-scheme: light;
 }
 
 body {
-  min-width: 320px;
-  min-height: 200px;
+  margin: 0;
 
   font-family:
     Inter,
     system-ui,
     sans-serif;
+
+  background: #f5f7fb;
+  color: #111827;
 }
 
-main {
+.popup {
+  width: 320px;
+
   padding: 16px;
+
+  box-sizing: border-box;
+}
+
+.popup-header {
+  margin-bottom: 20px;
+
+  text-align: center;
+}
+
+.popup-header h1 {
+  margin: 0;
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.popup-header p {
+  margin-top: 6px;
+
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.popup-card {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  box-shadow: 0 2px 8px rgb(0 0 0 / 5%);
+}
+
+.popup-label {
+  margin-bottom: 4px;
+
+  color: #6b7280;
+
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.popup-value {
+  color: #111827;
+
+  font-size: 16px;
+  font-weight: 600;
 }
