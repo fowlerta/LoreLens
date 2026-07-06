@@ -3,37 +3,68 @@ import dictionary from "../../assets/dictionaries/tolkien.json";
 import type { DictionaryEntry } from "../types/dictionary";
 
 export class DictionaryService {
-  private readonly entries = new Map<string, DictionaryEntry>();
-
-  private readonly normalizedEntries = new Map<
+  private static readonly entries = new Map<
     string,
     DictionaryEntry
   >();
 
+  private static readonly normalizedEntries = new Map<
+    string,
+    DictionaryEntry
+  >();
+
+  private static sortedEntries: DictionaryEntry[] = [];
+
+  private static loaded = false;
+
   public async load(): Promise<void> {
+    console.time("DictionaryService.load");
+    if (DictionaryService.loaded) {
+      console.log("[LoreLens] Using cached dictionary.");
+      console.timeEnd("DictionaryService.load");
+      return;
+    }
+
+    if (DictionaryService.loaded) {
+      return;
+    }
+
     const records = dictionary as DictionaryEntry[];
 
-    this.entries.clear();
-    this.normalizedEntries.clear();
-
     for (const entry of records) {
-      this.entries.set(entry.word, entry);
+      DictionaryService.entries.set(
+        entry.word,
+        entry,
+      );
 
-      this.normalizedEntries.set(
+      DictionaryService.normalizedEntries.set(
         this.normalize(entry.word),
         entry,
       );
     }
 
-    console.log(
-      `[LoreLens] Loaded ${this.entries.size} dictionary entries.`,
+    DictionaryService.sortedEntries = [
+      ...DictionaryService.entries.values(),
+    ].sort((a, b) =>
+      a.word.localeCompare(b.word),
     );
+
+    DictionaryService.loaded = true;
+
+    console.timeEnd("DictionaryService.load");
+    
+    console.log(
+      `[LoreLens] Dictionary loaded (${DictionaryService.entries.size} entries).`,
+    );
+
   }
 
-  public lookup(word: string): DictionaryEntry | undefined {
+  public lookup(
+    word: string,
+  ): DictionaryEntry | undefined {
     const entry =
-      this.entries.get(word) ??
-      this.normalizedEntries.get(
+      DictionaryService.entries.get(word) ??
+      DictionaryService.normalizedEntries.get(
         this.normalize(word),
       );
 
@@ -45,9 +76,7 @@ export class DictionaryService {
   }
 
   public getEntries(): DictionaryEntry[] {
-    return [...this.entries.values()].sort(
-      (a, b) => a.word.localeCompare(b.word),
-    );
+    return DictionaryService.sortedEntries;
   }
 
   private cleanDefinition(

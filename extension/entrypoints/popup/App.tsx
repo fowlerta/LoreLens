@@ -67,6 +67,26 @@ export default function App(): React.JSX.Element {
     }
   }, [filteredEntries, selectedEntry, query]);
 
+  useEffect(() => {
+    console.time("Popup initialization");
+    
+    async function loadDictionary() {
+      console.time("Dictionary load");
+    
+      await dictionaryService.load();
+    
+      console.timeEnd("Dictionary load");
+    
+      const entries = dictionaryService.getEntries();
+    
+      setEntries(entries);
+    
+      console.timeEnd("Popup initialization");
+    }
+  
+    void loadDictionary();
+  }, [dictionaryService]);
+
   return (
     <main className="popup">
       <header className="popup-header">
