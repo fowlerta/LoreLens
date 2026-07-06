@@ -22,6 +22,18 @@ export default function App(): React.JSX.Element {
   const [selectedEntry, setSelectedEntry] =
     useState<DictionaryEntry | null>(null);
 
+  const filteredEntries = useMemo(() => {
+    const value = query.trim().toLowerCase();
+
+    if (!value) {
+      return entries;
+    }
+
+    return entries.filter((entry) =>
+      entry.word.toLowerCase().includes(value),
+    );
+  }, [entries, query]);
+
   const dictionaryService = useMemo(
     () => new DictionaryService(),
     [],
@@ -35,14 +47,25 @@ export default function App(): React.JSX.Element {
         dictionaryService.getEntries();
 
       setEntries(entries);
-
-      if (entries.length > 0) {
-        setSelectedEntry(entries[0]);
-      }
     }
 
     void loadDictionary();
   }, [dictionaryService]);
+
+  useEffect(() => {
+    if (filteredEntries.length === 0) {
+      setSelectedEntry(null);
+      return;
+    }
+
+    const stillExists = filteredEntries.some(
+      (entry) => entry.word === selectedEntry?.word,
+    );
+
+    if (!stillExists && query.trim()) {
+      setSelectedEntry(filteredEntries[0]);
+    }
+  }, [filteredEntries, selectedEntry, query]);
 
   return (
     <main className="popup">
@@ -58,12 +81,15 @@ export default function App(): React.JSX.Element {
 
       <div className="popup-content">
         <WordList 
-          entries={entries}
+          entries={filteredEntries}
           selected={selectedEntry}
           onSelect={setSelectedEntry}
         />
 
-        <DefinitionView entry={selectedEntry} />
+        <DefinitionView 
+          entry={selectedEntry}
+          hasQuery={query.trim().length > 0}
+        />
       </div>
     </main>
   );

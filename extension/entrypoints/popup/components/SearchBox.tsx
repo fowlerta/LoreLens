@@ -12,6 +12,7 @@ export function SearchBox({
       className="popup-search"
       type="text"
       placeholder="Search dictionary..."
+      autoFocus
       value={value}
       onChange={(event) =>
         onChange(event.target.value)
