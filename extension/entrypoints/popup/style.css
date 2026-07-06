@@ -112,7 +112,9 @@ body {
   overflow-y: auto;
 }
 
-.popup-word-list button {
+.popup-word-item {
+  width: 100%;
+
   padding: 8px 10px;
 
   border: none;
@@ -126,10 +128,21 @@ body {
 
   font-family: inherit;
   font-size: 14px;
+
+  transition:
+    background-color 0.15s,
+    color 0.15s;
 }
 
-.popup-word-list button:hover {
+.popup-word-item:hover {
   background: #eef2ff;
+}
+
+.popup-word-item.active {
+  background: #2563eb;
+  color: white;
+
+  font-weight: 600;
 }
 
 .popup-definition {
