@@ -5,6 +5,7 @@ import { DictionaryService } from "../../lib/services/DictionaryService";
 import { DefinitionView } from "./components/DefinitionView";
 import { SearchBox } from "./components/SearchBox";
 import { WordList } from "./components/WordList";
+import type { DictionaryEntry } from "../../lib/types/dictionary";
 
 const APP_INFO = {
   name: "LoreLens",
@@ -14,7 +15,12 @@ const APP_INFO = {
 export default function App(): React.JSX.Element {
   const [query, setQuery] = useState("");
 
-  const [words, setWords] = useState<string[]>([]);
+  const [entries, setEntries] = useState<
+    DictionaryEntry[]
+  >([]);
+
+  const [selectedEntry, setSelectedEntry] =
+    useState<DictionaryEntry | null>(null);
 
   const dictionaryService = useMemo(
     () => new DictionaryService(),
@@ -28,9 +34,11 @@ export default function App(): React.JSX.Element {
       const entries =
         dictionaryService.getEntries();
 
-      setWords(
-        entries.map((entry) => entry.word),
-      );
+      setEntries(entries);
+
+      if (entries.length > 0) {
+        setSelectedEntry(entries[0]);
+      }
     }
 
     void loadDictionary();
@@ -49,9 +57,13 @@ export default function App(): React.JSX.Element {
       />
 
       <div className="popup-content">
-        <WordList words={words} />
+        <WordList 
+          entries={entries}
+          selected={selectedEntry}
+          onSelect={setSelectedEntry}
+        />
 
-        <DefinitionView />
+        <DefinitionView entry={selectedEntry} />
       </div>
     </main>
   );
