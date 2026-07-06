@@ -21,6 +21,14 @@ export function WordList({
       block: "center",
     });
   }, [selected]);
+
+  if (entries.length === 0) {
+    return (
+      <aside className="popup-word-list popup-word-list-empty">
+        No results found.
+      </aside>
+    );
+  }
   
   return (
     <aside className="popup-word-list">
