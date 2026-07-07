@@ -6,6 +6,11 @@ import { DefinitionView } from "./components/DefinitionView";
 import { SearchBox } from "./components/SearchBox";
 import { WordList } from "./components/WordList";
 import type { DictionaryEntry } from "../../lib/types/dictionary";
+import { RecentWordsService } from "../../lib/services/RecentWordsService";
+import { RecentWords } from "./components/RecentWords";
+import { Tabs } from "./components/Tabs";
+
+type Tab = "dictionary" | "recent";
 
 const APP_INFO = {
   name: "LoreLens",
@@ -19,8 +24,23 @@ export default function App(): React.JSX.Element {
     DictionaryEntry[]
   >([]);
 
-  const [selectedEntry, setSelectedEntry] =
-    useState<DictionaryEntry | null>(null);
+  const [recentEntries, setRecentEntries] =
+    useState<DictionaryEntry[]>([]);
+
+
+  const [activeTab, setActiveTab] =
+    useState<Tab>("dictionary");
+
+  const [selectedEntries, setSelectedEntries] =
+    useState<
+      Record<Tab, DictionaryEntry | null>
+    >({
+      dictionary: null,
+      recent: null,
+    });
+
+  const selectedEntry =
+    selectedEntries[activeTab];
 
   const filteredEntries = useMemo(() => {
     const value = query.trim().toLowerCase();
@@ -39,6 +59,21 @@ export default function App(): React.JSX.Element {
     [],
   );
 
+  const recentWordsService = useMemo(
+    () => new RecentWordsService(),
+    [],
+  );
+
+  function selectEntry(
+    tab: Tab,
+    entry: DictionaryEntry,
+  ): void {
+    setSelectedEntries((previous) => ({
+      ...previous,
+      [tab]: entry,
+    }));
+  }
+
   useEffect(() => {
     async function loadDictionary() {
       await dictionaryService.load();
@@ -47,45 +82,45 @@ export default function App(): React.JSX.Element {
         dictionaryService.getEntries();
 
       setEntries(entries);
+
+      const recent =
+        await recentWordsService.get();
+
+      setRecentEntries(recent);
     }
 
     void loadDictionary();
-  }, [dictionaryService]);
+  }, [dictionaryService, recentWordsService]);
 
   useEffect(() => {
     if (filteredEntries.length === 0) {
-      setSelectedEntry(null);
+      setSelectedEntries((previous) => ({
+        ...previous,
+        dictionary: null,
+      }));
+
       return;
     }
 
     const stillExists = filteredEntries.some(
-      (entry) => entry.word === selectedEntry?.word,
+      (entry) => 
+        entry.word === 
+        selectedEntries.dictionary?.word,
     );
 
     if (!stillExists && query.trim()) {
-      setSelectedEntry(filteredEntries[0]);
+      setSelectedEntries((previous) => ({
+        ...previous,
+        dictionary: filteredEntries[0],
+      }));
     }
-  }, [filteredEntries, selectedEntry, query]);
+  }, [filteredEntries, selectedEntries.dictionary, query]);
 
   useEffect(() => {
-    console.time("Popup initialization");
-    
-    async function loadDictionary() {
-      console.time("Dictionary load");
-    
-      await dictionaryService.load();
-    
-      console.timeEnd("Dictionary load");
-    
-      const entries = dictionaryService.getEntries();
-    
-      setEntries(entries);
-    
-      console.timeEnd("Popup initialization");
+    if (activeTab === "recent") {
+      setQuery("");
     }
-  
-    void loadDictionary();
-  }, [dictionaryService]);
+  }, [activeTab]);
 
   return (
     <main className="popup">
@@ -94,19 +129,40 @@ export default function App(): React.JSX.Element {
         <p>{APP_INFO.tagline}</p>
       </header>
 
-      <SearchBox
-        value={query}
-        onChange={setQuery}
+      {activeTab === "dictionary" && (
+        <SearchBox
+          value={query}
+          onChange={setQuery}
+        />
+      )}
+
+      <Tabs
+        active={activeTab}
+        onChange={setActiveTab}
       />
 
       <div className="popup-content">
-        <WordList 
-          entries={filteredEntries}
-          selected={selectedEntry}
-          onSelect={setSelectedEntry}
-        />
+        {activeTab === "dictionary" ? (
+          <WordList
+            entries={filteredEntries}
+            selected={
+              selectedEntries.dictionary
+            }
+            onSelect={(entry) =>
+              selectEntry("dictionary", entry)
+            }
+          />
+        ) : (
+          <RecentWords
+            entries={recentEntries}
+            selected={selectedEntries.recent}
+            onSelect={(entry) =>
+              selectEntry("recent", entry)
+            }
+          />
+        )}
 
-        <DefinitionView 
+        <DefinitionView
           entry={selectedEntry}
           hasQuery={query.trim().length > 0}
         />
