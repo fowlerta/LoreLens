@@ -1,8 +1,11 @@
+type Tab =
+  | "dictionary"
+  | "recent"
+  | "favorites";
+
 type TabsProps = {
-  active: "dictionary" | "recent";
-  onChange: (
-    tab: "dictionary" | "recent",
-  ) => void;
+  active: Tab;
+  onChange: (tab: Tab) => void;
 };
 
 export function Tabs({

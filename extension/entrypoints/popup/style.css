@@ -102,7 +102,7 @@ body {
 }
 
 .popup-word-list {
-  width: 120px;
+  width: 170px;
 
   display: flex;
   flex-direction: column;
@@ -132,6 +132,14 @@ body {
   transition:
     background-color 0.15s,
     color 0.15s;
+  
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+
+  line-height: 1.35;
+
+  text-align: left;
 }
 
 .popup-word-item:hover {
@@ -163,6 +171,21 @@ body {
 .popup-definition h2 {
   margin-top: 0;
   margin-bottom: 12px;
+
+  font-size: 16px;
+}
+
+.popup-definition-header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 12px;
+}
+
+.popup-definition-header h2 {
+  margin: 0;
 
   font-size: 16px;
 }
@@ -255,4 +278,40 @@ body {
 
   box-shadow:
     0 1px 3px rgb(0 0 0 / 10%);
+}
+
+.popup-favorite-button {
+  border: none;
+  background: transparent;
+
+  padding: 4px;
+
+  font-size: 20px;
+
+  cursor: pointer;
+
+  color: #facc15;
+
+  opacity: 0;
+
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+
+.popup-favorite-button:hover {
+  transform: scale(1.1);
+}
+
+.popup-definition:hover .popup-favorite-button {
+  opacity: 1;
+}
+
+.popup-favorite-button {
+  color: #9ca3af; /* серый */
+}
+
+.popup-favorite-button.favorite {
+  color: #facc15; /* желтый */
+  opacity: 1;
 }
