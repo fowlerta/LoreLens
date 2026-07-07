@@ -2,9 +2,11 @@ import type { DictionaryEntry } from "../types/dictionary";
 import type { SelectionData } from "../types/selection";
 
 import { TooltipRenderer } from "../renderers/TooltipRenderer";
+import { RecentWordsService } from "../services/RecentWordsService";
 
 export class TooltipController {
   private readonly renderer = new TooltipRenderer();
+  private readonly recentWordsService = new RecentWordsService();
 
   private pinned = false;
 
@@ -116,13 +118,16 @@ export class TooltipController {
       return;
     }
 
-    this.show(selection, entry);
+    void this.show(selection, entry);
   }
 
-  private show(
+  private async show(
     selection: SelectionData,
     entry?: DictionaryEntry,
-  ): void {
+  ): Promise<void> {
+    if (entry) {
+      await this.recentWordsService.add(entry);
+    }
     this.renderer.show({
       word: entry?.word ?? selection.text,
       definition: entry?.definition,

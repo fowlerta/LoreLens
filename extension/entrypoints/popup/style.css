@@ -211,3 +211,48 @@ body {
   font-size: 14px;
   font-style: italic;
 }
+
+.popup-tabs {
+  display: flex;
+
+  margin-bottom: 12px;
+
+  padding: 4px;
+
+  background: #f3f4f6;
+
+  border-radius: 10px;
+}
+
+.popup-tab {
+  flex: 1;
+
+  padding: 8px 12px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  font: inherit;
+  font-weight: 600;
+
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.popup-tab:hover {
+  background: #e5e7eb;
+}
+
+.popup-tab.active {
+  background: white;
+
+  color: #2563eb;
+
+  box-shadow:
+    0 1px 3px rgb(0 0 0 / 10%);
+}
