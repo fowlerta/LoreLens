@@ -9,8 +9,12 @@ import type { DictionaryEntry } from "../../lib/types/dictionary";
 import { RecentWordsService } from "../../lib/services/RecentWordsService";
 import { RecentWords } from "./components/RecentWords";
 import { Tabs } from "./components/Tabs";
+import { FavoritesService } from "../../lib/services/FavoritesService";
 
-type Tab = "dictionary" | "recent";
+type Tab =
+  | "dictionary"
+  | "recent"
+  | "favorites";
 
 const APP_INFO = {
   name: "LoreLens",
@@ -27,6 +31,9 @@ export default function App(): React.JSX.Element {
   const [recentEntries, setRecentEntries] =
     useState<DictionaryEntry[]>([]);
 
+  const [favoriteEntries, setFavoriteEntries] =
+    useState<DictionaryEntry[]>([]);
+
 
   const [activeTab, setActiveTab] =
     useState<Tab>("dictionary");
@@ -37,10 +44,18 @@ export default function App(): React.JSX.Element {
     >({
       dictionary: null,
       recent: null,
+      favorites: null,
     });
 
   const selectedEntry =
     selectedEntries[activeTab];
+
+  const isFavorite =
+    selectedEntry !== null &&
+    favoriteEntries.some(
+      (entry) =>
+        entry.word === selectedEntry.word,
+    );
 
   const filteredEntries = useMemo(() => {
     const value = query.trim().toLowerCase();
@@ -64,6 +79,11 @@ export default function App(): React.JSX.Element {
     [],
   );
 
+  const favoritesService = useMemo(
+    () => new FavoritesService(),
+    [],
+  );
+
   function selectEntry(
     tab: Tab,
     entry: DictionaryEntry,
@@ -72,6 +92,17 @@ export default function App(): React.JSX.Element {
       ...previous,
       [tab]: entry,
     }));
+  }
+
+  async function toggleFavorite(
+    entry: DictionaryEntry,
+  ): Promise<void> {
+    await favoritesService.toggle(entry);
+
+    const favorites =
+      await favoritesService.get();
+
+    setFavoriteEntries(favorites);
   }
 
   useEffect(() => {
@@ -87,10 +118,15 @@ export default function App(): React.JSX.Element {
         await recentWordsService.get();
 
       setRecentEntries(recent);
+
+      const favorites =
+        await favoritesService.get();
+
+      setFavoriteEntries(favorites);
     }
 
     void loadDictionary();
-  }, [dictionaryService, recentWordsService]);
+  }, [dictionaryService, recentWordsService, favoritesService]);
 
   useEffect(() => {
     if (filteredEntries.length === 0) {
@@ -165,6 +201,12 @@ export default function App(): React.JSX.Element {
         <DefinitionView
           entry={selectedEntry}
           hasQuery={query.trim().length > 0}
+          favorite={isFavorite}
+          onToggleFavorite={() => {
+            if (selectedEntry) {
+              void toggleFavorite(selectedEntry);
+            }
+          }}
         />
       </div>
     </main>
