@@ -41,6 +41,18 @@ export function Tabs({
       >
         Recent
       </button>
+
+      <button
+        type="button"
+        className={`popup-tab ${
+          active === "favorites"
+            ? "active"
+            : ""
+        }`}
+        onClick={() => onChange("favorites")}
+    >
+        Favorites
+    </button>
     </nav>
   );
 }
