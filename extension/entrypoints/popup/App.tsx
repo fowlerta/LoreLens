@@ -10,6 +10,7 @@ import { RecentWordsService } from "../../lib/services/RecentWordsService";
 import { RecentWords } from "./components/RecentWords";
 import { Tabs } from "./components/Tabs";
 import { FavoritesService } from "../../lib/services/FavoritesService";
+import { Favorites } from "./components/Favorites";
 
 type Tab =
   | "dictionary"
@@ -153,7 +154,7 @@ export default function App(): React.JSX.Element {
   }, [filteredEntries, selectedEntries.dictionary, query]);
 
   useEffect(() => {
-    if (activeTab === "recent") {
+    if (activeTab !== "dictionary") {
       setQuery("");
     }
   }, [activeTab]);
@@ -178,22 +179,32 @@ export default function App(): React.JSX.Element {
       />
 
       <div className="popup-content">
-        {activeTab === "dictionary" ? (
+        {activeTab === "dictionary" && (
           <WordList
             entries={filteredEntries}
-            selected={
-              selectedEntries.dictionary
-            }
+            selected={selectedEntries.dictionary}
             onSelect={(entry) =>
               selectEntry("dictionary", entry)
             }
           />
-        ) : (
+        )}
+
+        {activeTab === "recent" && (
           <RecentWords
             entries={recentEntries}
             selected={selectedEntries.recent}
             onSelect={(entry) =>
               selectEntry("recent", entry)
+            }
+          />
+        )}
+
+        {activeTab === "favorites" && (
+          <Favorites
+            entries={favoriteEntries}
+            selected={selectedEntries.favorites}
+            onSelect={(entry) =>
+              selectEntry("favorites", entry)
             }
           />
         )}
