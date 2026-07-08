@@ -1,3 +1,6 @@
+import {
+  dictionaryManager,
+} from "./DictionaryManager";
 import dictionary from "../../assets/dictionaries/tolkien.json";
 
 import type { DictionaryEntry } from "../types/dictionary";
@@ -25,11 +28,25 @@ export class DictionaryService {
       return;
     }
 
-    if (DictionaryService.loaded) {
-      return;
+    if (!dictionaryManager.has("tolkien")) {
+      dictionaryManager.register({
+        id: "tolkien",
+        name: "Tolkien Gateway",
+        entries: dictionary as DictionaryEntry[],
+      });
     }
 
-    const records = dictionary as DictionaryEntry[];
+    const source =
+      dictionaryManager.getActive();
+
+    if (!source) {
+      throw new Error("Dictionary not found.");
+    }
+
+    const records = source.entries;
+
+    DictionaryService.entries.clear();
+      DictionaryService.normalizedEntries.clear();
 
     for (const entry of records) {
       DictionaryService.entries.set(
