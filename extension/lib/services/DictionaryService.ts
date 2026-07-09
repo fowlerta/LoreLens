@@ -4,6 +4,8 @@ import {
 import dictionary from "../../assets/dictionaries/tolkien.json";
 
 import type { DictionaryEntry } from "../types/dictionary";
+import type { DictionaryId } from "../types/dictionary";
+import type { DictionarySource } from "../types/DictionarySource";
 
 export class DictionaryService {
   private static readonly entries = new Map<
@@ -36,6 +38,8 @@ export class DictionaryService {
       });
     }
 
+    await dictionaryManager.restore();
+
     const source =
       dictionaryManager.getActive();
 
@@ -46,7 +50,8 @@ export class DictionaryService {
     const records = source.entries;
 
     DictionaryService.entries.clear();
-      DictionaryService.normalizedEntries.clear();
+    DictionaryService.normalizedEntries.clear();
+    DictionaryService.sortedEntries = [];
 
     for (const entry of records) {
       DictionaryService.entries.set(
@@ -68,12 +73,37 @@ export class DictionaryService {
 
     DictionaryService.loaded = true;
 
+    
+
     console.timeEnd("DictionaryService.load");
     
     console.log(
       `[LoreLens] Dictionary loaded (${DictionaryService.entries.size} entries).`,
     );
 
+  }
+
+  public getAvailableDictionaries():
+    DictionarySource[] {
+    return dictionaryManager.getAll();
+  }
+
+  public getActiveDictionaryId():
+    DictionaryId | null {
+    return dictionaryManager.getActiveId();
+  }
+
+  public async setActiveDictionary(
+    id: DictionaryId,
+  ): Promise<void> {
+    await dictionaryManager.setActive(id);
+
+    DictionaryService.entries.clear();
+    DictionaryService.normalizedEntries.clear();
+    DictionaryService.sortedEntries = [];
+    DictionaryService.loaded = false;
+
+    await this.load();
   }
 
   public lookup(

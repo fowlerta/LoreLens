@@ -11,6 +11,9 @@ import { RecentWords } from "./components/RecentWords";
 import { Tabs } from "./components/Tabs";
 import { FavoritesService } from "../../lib/services/FavoritesService";
 import { Favorites } from "./components/Favorites";
+import { DictionarySelector } from "./components/DictionarySelector";
+import type { DictionarySource } from "../../lib/types/DictionarySource";
+import type { DictionaryId } from "../../lib/types/dictionary";
 
 type Tab =
   | "dictionary"
@@ -34,6 +37,12 @@ export default function App(): React.JSX.Element {
 
   const [favoriteEntries, setFavoriteEntries] =
     useState<DictionaryEntry[]>([]);
+
+  const [availableDictionaries, setAvailableDictionaries] =
+    useState<DictionarySource[]>([]);
+
+  const [activeDictionaryId, setActiveDictionaryId] =
+    useState<DictionaryId | null>(null);
 
 
   const [activeTab, setActiveTab] =
@@ -106,9 +115,33 @@ export default function App(): React.JSX.Element {
     setFavoriteEntries(favorites);
   }
 
+  async function changeDictionary(
+    id: DictionaryId,
+  ): Promise<void> {
+    await dictionaryService.setActiveDictionary(id);
+
+    setActiveDictionaryId(id);
+
+    setEntries(dictionaryService.getEntries());
+
+    setSelectedEntries({
+      dictionary: null,
+      recent: null,
+      favorites: null,
+    });
+  }
+
   useEffect(() => {
     async function loadDictionary() {
       await dictionaryService.load();
+
+      setActiveDictionaryId(
+        dictionaryService.getActiveDictionaryId(),
+      );
+
+      setAvailableDictionaries(
+        dictionaryService.getAvailableDictionaries(),
+      );
 
       const entries =
         dictionaryService.getEntries();
@@ -164,6 +197,13 @@ export default function App(): React.JSX.Element {
       <header className="popup-header">
         <h1>{APP_INFO.name}</h1>
         <p>{APP_INFO.tagline}</p>
+        <DictionarySelector
+          dictionaries={availableDictionaries}
+          active={activeDictionaryId}
+          onChange={(id) => {
+            void changeDictionary(id);
+          }}
+        />
       </header>
 
       {activeTab === "dictionary" && (

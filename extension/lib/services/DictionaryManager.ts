@@ -6,6 +6,8 @@ import type {
   DictionarySource,
 } from "../types/DictionarySource";
 
+import { SettingsService } from "../services/SettingsService";
+
 export class DictionaryManager {
   private readonly dictionaries =
     new Map<
@@ -15,6 +17,9 @@ export class DictionaryManager {
 
   private activeDictionaryId: DictionaryId | null =
     null;
+
+  private readonly settingsService =
+    new SettingsService();
 
   public register(
     dictionary: DictionarySource,
@@ -66,9 +71,9 @@ export class DictionaryManager {
     );
   }
   
-  public setActive(
+  public async setActive(
     id: DictionaryId,
-  ): void {
+  ): Promise<void> {
     if (!this.has(id)) {
       throw new Error(
         `Dictionary "${id}" not found.`,
@@ -76,6 +81,19 @@ export class DictionaryManager {
     }
   
     this.activeDictionaryId = id;
+
+    await this.settingsService.setActiveDictionary(
+      id,
+    );
+  }
+
+  public async restore(): Promise<void> {
+    const id =
+      await this.settingsService.getActiveDictionary();
+  
+    if (id !== null && this.has(id)) {
+      this.activeDictionaryId = id;
+    }
   }
   
   public getActiveId():
