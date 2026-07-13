@@ -1,19 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 
+import browser from "webextension-polyfill";
+
 import { DictionaryService } from "../../lib/services/DictionaryService";
+import { FavoritesService } from "../../lib/services/FavoritesService";
+import { RecentWordsService } from "../../lib/services/RecentWordsService";
+
+import type { DictionaryEntry } from "../../lib/types/dictionary";
 
 import { DefinitionView } from "./components/DefinitionView";
-import { SearchBox } from "./components/SearchBox";
-import { WordList } from "./components/WordList";
-import type { DictionaryEntry } from "../../lib/types/dictionary";
-import { RecentWordsService } from "../../lib/services/RecentWordsService";
-import { RecentWords } from "./components/RecentWords";
-import { Tabs } from "./components/Tabs";
-import { FavoritesService } from "../../lib/services/FavoritesService";
 import { Favorites } from "./components/Favorites";
-import { DictionarySelector } from "./components/DictionarySelector";
-import type { DictionarySource } from "../../lib/types/DictionarySource";
-import type { DictionaryId } from "../../lib/types/dictionary";
+import { RecentWords } from "./components/RecentWords";
+import { SearchBox } from "./components/SearchBox";
+import { Tabs } from "./components/Tabs";
+import { WordList } from "./components/WordList";
 
 type Tab =
   | "dictionary"
@@ -38,12 +38,8 @@ export default function App(): React.JSX.Element {
   const [favoriteEntries, setFavoriteEntries] =
     useState<DictionaryEntry[]>([]);
 
-  const [availableDictionaries, setAvailableDictionaries] =
-    useState<DictionarySource[]>([]);
-
-  const [activeDictionaryId, setActiveDictionaryId] =
-    useState<DictionaryId | null>(null);
-
+  const [activeDictionaryName, setActiveDictionaryName] =
+    useState("Unknown");
 
   const [activeTab, setActiveTab] =
     useState<Tab>("dictionary");
@@ -75,7 +71,9 @@ export default function App(): React.JSX.Element {
     }
 
     return entries.filter((entry) =>
-      entry.word.toLowerCase().includes(value),
+      entry.word
+        .toLowerCase()
+        .includes(value),
     );
   }, [entries, query]);
 
@@ -109,25 +107,16 @@ export default function App(): React.JSX.Element {
   ): Promise<void> {
     await favoritesService.toggle(entry);
 
-    const favorites =
-      await favoritesService.get();
-
-    setFavoriteEntries(favorites);
+    setFavoriteEntries(
+      await favoritesService.get(),
+    );
   }
 
-  async function changeDictionary(
-    id: DictionaryId,
-  ): Promise<void> {
-    await dictionaryService.setActiveDictionary(id);
-
-    setActiveDictionaryId(id);
-
-    setEntries(dictionaryService.getEntries());
-
-    setSelectedEntries({
-      dictionary: null,
-      recent: null,
-      favorites: null,
+  function openSettings(): void {
+    void browser.tabs.create({
+      url: browser.runtime.getURL(
+        "settings.html",
+      ),
     });
   }
 
@@ -135,32 +124,39 @@ export default function App(): React.JSX.Element {
     async function loadDictionary() {
       await dictionaryService.load();
 
-      setActiveDictionaryId(
-        dictionaryService.getActiveDictionaryId(),
+      const activeDictionary =
+        dictionaryService
+          .getAvailableDictionaries()
+          .find(
+            (dictionary) =>
+              dictionary.id ===
+              dictionaryService.getActiveDictionaryId(),
+          );
+
+      setActiveDictionaryName(
+        activeDictionary?.name ??
+          "Unknown",
       );
 
-      setAvailableDictionaries(
-        dictionaryService.getAvailableDictionaries(),
+      setEntries(
+        dictionaryService.getEntries(),
       );
 
-      const entries =
-        dictionaryService.getEntries();
+      setRecentEntries(
+        await recentWordsService.get(),
+      );
 
-      setEntries(entries);
-
-      const recent =
-        await recentWordsService.get();
-
-      setRecentEntries(recent);
-
-      const favorites =
-        await favoritesService.get();
-
-      setFavoriteEntries(favorites);
+      setFavoriteEntries(
+        await favoritesService.get(),
+      );
     }
 
     void loadDictionary();
-  }, [dictionaryService, recentWordsService, favoritesService]);
+  }, [
+    dictionaryService,
+    recentWordsService,
+    favoritesService,
+  ]);
 
   useEffect(() => {
     if (filteredEntries.length === 0) {
@@ -172,11 +168,12 @@ export default function App(): React.JSX.Element {
       return;
     }
 
-    const stillExists = filteredEntries.some(
-      (entry) => 
-        entry.word === 
-        selectedEntries.dictionary?.word,
-    );
+    const stillExists =
+      filteredEntries.some(
+        (entry) =>
+          entry.word ===
+          selectedEntries.dictionary?.word,
+      );
 
     if (!stillExists && query.trim()) {
       setSelectedEntries((previous) => ({
@@ -184,7 +181,11 @@ export default function App(): React.JSX.Element {
         dictionary: filteredEntries[0],
       }));
     }
-  }, [filteredEntries, selectedEntries.dictionary, query]);
+  }, [
+    filteredEntries,
+    selectedEntries.dictionary,
+    query,
+  ]);
 
   useEffect(() => {
     if (activeTab !== "dictionary") {
@@ -195,16 +196,29 @@ export default function App(): React.JSX.Element {
   return (
     <main className="popup">
       <header className="popup-header">
-        <h1>{APP_INFO.name}</h1>
-        <p>{APP_INFO.tagline}</p>
-        <DictionarySelector
-          dictionaries={availableDictionaries}
-          active={activeDictionaryId}
-          onChange={(id) => {
-            void changeDictionary(id);
-          }}
-        />
+        <div className="popup-title">
+          <h1>{APP_INFO.name}</h1>
+          <p>{APP_INFO.tagline}</p>
+        </div>
+
+        <button
+          className="settings-button"
+          onClick={openSettings}
+          title="Settings"
+        >
+          ⚙
+        </button>
       </header>
+
+      <div className="popup-card">
+        <div className="popup-label">
+          Active Dictionary
+        </div>
+
+        <div className="popup-value">
+          {activeDictionaryName}
+        </div>
+      </div>
 
       {activeTab === "dictionary" && (
         <SearchBox
@@ -222,9 +236,14 @@ export default function App(): React.JSX.Element {
         {activeTab === "dictionary" && (
           <WordList
             entries={filteredEntries}
-            selected={selectedEntries.dictionary}
+            selected={
+              selectedEntries.dictionary
+            }
             onSelect={(entry) =>
-              selectEntry("dictionary", entry)
+              selectEntry(
+                "dictionary",
+                entry,
+              )
             }
           />
         )}
@@ -232,9 +251,14 @@ export default function App(): React.JSX.Element {
         {activeTab === "recent" && (
           <RecentWords
             entries={recentEntries}
-            selected={selectedEntries.recent}
+            selected={
+              selectedEntries.recent
+            }
             onSelect={(entry) =>
-              selectEntry("recent", entry)
+              selectEntry(
+                "recent",
+                entry,
+              )
             }
           />
         )}
@@ -242,20 +266,29 @@ export default function App(): React.JSX.Element {
         {activeTab === "favorites" && (
           <Favorites
             entries={favoriteEntries}
-            selected={selectedEntries.favorites}
+            selected={
+              selectedEntries.favorites
+            }
             onSelect={(entry) =>
-              selectEntry("favorites", entry)
+              selectEntry(
+                "favorites",
+                entry,
+              )
             }
           />
         )}
 
         <DefinitionView
           entry={selectedEntry}
-          hasQuery={query.trim().length > 0}
+          hasQuery={
+            query.trim().length > 0
+          }
           favorite={isFavorite}
           onToggleFavorite={() => {
             if (selectedEntry) {
-              void toggleFavorite(selectedEntry);
+              void toggleFavorite(
+                selectedEntry,
+              );
             }
           }}
         />

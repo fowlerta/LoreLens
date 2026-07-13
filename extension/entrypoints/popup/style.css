@@ -23,30 +23,77 @@ body {
 }
 
 .popup-header {
-  margin-bottom: 20px;
+  display: flex;
 
-  text-align: center;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 16px;
 }
 
-.popup-header h1 {
+.popup-title {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.popup-title h1 {
   margin: 0;
 
   font-size: 24px;
   font-weight: 700;
 }
 
-.popup-header p {
-  margin-top: 6px;
+.popup-title p {
+  margin: 0;
 
   color: #6b7280;
+
   font-size: 14px;
 }
 
+.settings-button {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  background: white;
+
+  cursor: pointer;
+
+  font-size: 18px;
+
+  transition:
+    background-color .2s,
+    border-color .2s,
+    transform .15s;
+}
+
+.settings-button:hover {
+  background: #f3f4f6;
+
+  border-color: #cbd5e1;
+
+  transform: rotate(20deg);
+}
+
 .popup-card {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
   margin-bottom: 12px;
   padding: 12px 14px;
 
-  background: #ffffff;
+  background: white;
 
   border: 1px solid #e5e7eb;
   border-radius: 10px;
@@ -98,7 +145,7 @@ body {
 
   gap: 12px;
 
-  height: 300px;
+  height: 320px;
 }
 
 .popup-word-list {
@@ -286,17 +333,18 @@ body {
 
   padding: 4px;
 
-  font-size: 20px;
-
   cursor: pointer;
 
-  color: #facc15;
+  font-size: 20px;
+
+  color: #9ca3af;
 
   opacity: 0;
 
   transition:
-    opacity 0.2s,
-    transform 0.15s;
+    opacity .2s,
+    color .2s,
+    transform .15s;
 }
 
 .popup-favorite-button:hover {
@@ -307,11 +355,29 @@ body {
   opacity: 1;
 }
 
-.popup-favorite-button {
-  color: #9ca3af; /* серый */
+.popup-favorite-button.favorite {
+  color: #facc15;
+  opacity: 1;
 }
 
-.popup-favorite-button.favorite {
-  color: #facc15; /* желтый */
-  opacity: 1;
+.popup-word-list::-webkit-scrollbar,
+.popup-definition::-webkit-scrollbar {
+  width: 8px;
+}
+
+.popup-word-list::-webkit-scrollbar-thumb,
+.popup-definition::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 999px;
+}
+
+.popup-word-list::-webkit-scrollbar-thumb:hover,
+.popup-definition::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
